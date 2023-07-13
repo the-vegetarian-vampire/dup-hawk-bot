@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "dup-hawk"
+version = "0.1.0"
+description = ""
+authors = ["PatrickAlphac <54278053+PatrickAlphaC@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "hawk_dup_remover"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+click = "^8.1.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
