@@ -23,8 +23,18 @@ We rebuilt the [GitHub API](https://docs.github.com/en/rest) because the [PyGith
 
 # Tests
 
+```
+poetry run pytest
+```
+
 ## Integration tests
 
 ```
 poetry run pytest -m ""
+```
+
+## Specific tests with pdb and stdout
+
+```
+poetry run pytest -k "test_mark_duplicates_from_dfs" --pdb -s
 ```

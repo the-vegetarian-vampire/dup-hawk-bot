@@ -1,12 +1,15 @@
+import logging as log
 import os
 from typing import List
 
 import click
+import numpy as np
 import openai
+import pandas as pd
 from dotenv import load_dotenv
 from openai import Embedding
 from openai.embeddings_utils import get_embedding
-from scipy import spatial
+from scipy.spatial.distance import cdist
 
 from pygithub import Github
 
@@ -16,6 +19,8 @@ load_dotenv()
 
 EMBEDDING_MODEL = "text-embedding-ada-002"
 SIMILARITY_THRESHOLD = 0.85
+
+log.basicConfig(level=log.INFO)
 
 
 @click.command()
@@ -33,84 +38,87 @@ SIMILARITY_THRESHOLD = 0.85
     default=os.getenv("GITHUB_PAT_TOKEN"),
     help="GitHub repo URL that you want to mark duplicate issues for.",
 )
-def mark_duplicates_click(git_repo_url: str, git_pat_token: str):
-    mark_duplicates(git_repo_url, git_pat_token)
+def dup_hawk_click(git_repo_url: str, git_pat_token: str):
+    dup_hawk(git_repo_url, git_pat_token)
 
 
-def mark_duplicates(git_repo_url: str, git_pat_token: str):
+def dup_hawk(git_repo_url: str, git_pat_token: str):
     openai.key = os.getenv("OPENAI_API_KEY")
     g: Github = Github(git_pat_token)
+    log.info(f"Getting issues from {git_repo_url}")
     repo_issues: List[dict] = g.get_issues(git_repo_url, state="open")
-
-    # Make this a dict
-    titles_and_id = [
-        {key: dic[key] for key in ("id", "title")}
-        for dic in repo_issues
-        if dic.get("title") is not "update"
-    ]
-    bodies_and_id = [
-        {key: dic[key] for key in ("id", "title")}
-        for dic in repo_issues
-        if dic.get("body") is not None
-    ]
-
-    titles_embeddings = Embedding.create(
-        input=titles_and_id.values(), model=EMBEDDING_MODEL
-    )
-    bodies_embeddings = Embedding.create(
-        input=bodies_and_id.values(), model=EMBEDDING_MODEL
-    )
-    duplicates = find_duplicates(titles_and_id, titles_embeddings, SIMILARITY_THRESHOLD)
-    breakpoint()
+    log.info(f"Found {len(repo_issues)} issues, converting to embeddings")
+    df, dist_df = create_embeddings_and_dfs(repo_issues)
+    log.info(f"Finding duplicates")
+    duplicates_dict = mark_duplicates_from_dfs(df, dist_df)
+    log.info(f"Tagging duplicates")
+    for github_issue_number in duplicates_dict:
+        for duplicate_number in duplicates_dict[github_issue_number]:
+            log.info(
+                f"Tagging {duplicate_number} as a duplicate of {github_issue_number}"
+            )
+            g.tag_issue(
+                github_issue_number, git_repo_url, [f"ai-dup-{duplicate_number}"]
+            )
+    log.info(f"Done!")
 
 
-def find_duplicates(
-    titles: List[dict], embeddings: List[Embedding], similarity_threshold: float
-):
+def create_embeddings_and_dfs(
+    repo_issues: List[dict],
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Find duplciates based on the titles
+    Reaches out to the OpenAI API to get embeddings for each issue and then creates
+    a dataframe with the embeddings and a dataframe with the distances between each
 
     Args:
-        titles (List[str]): _description_
-        embeddings (List[Embedding]): _description_
-        similarity_threshold (float): A float between 0 and 1
+        repo_issues (List[dict]): A list of dicts from the GitHub API
 
     Returns:
-        _type_: _description_
+        tuple[pd.DataFrame, pd.DataFrame]: _description_
     """
+    df: pd.DataFrame = pd.DataFrame(repo_issues)
+    # Combine title and body of the issue
+    df["text"] = df["title"] + " " + df["body"]
+    df.dropna(subset=["text"], inplace=True)
 
-    duplicates = []
+    # Get embeddings for each issue
+    df["embeddings"] = df["text"].apply(lambda x: get_embedding(x, EMBEDDING_MODEL))
 
-    for index in range(len(embeddings)):
-        for index_j in range(index + 1, len(embeddings)):
-            similarity = 1 - spatial.distance.cosine(
-                embeddings.data[index]["embedding"],
-                embeddings.data[index_j]["embedding"],
-            )
-            if similarity > similarity_threshold:
-                duplicates.append((titles[index], titles[index_j], similarity))
-
-    return duplicates
-
-
-def compare_issues(issue1, issue2):
-    pass
+    distances = cdist(list(df["embeddings"]), list(df["embeddings"]), metric="cosine")
+    distances[distances > 1 - SIMILARITY_THRESHOLD] = np.nan
+    dist_df = pd.DataFrame(distances)
+    return df, dist_df
 
 
-# def get_owner_and_repo(url: str) -> tuple[str, str]:
-#     parsed_url = urlparse(url)
-#     path = parsed_url.path
-#     owner, repo = path.strip("/").split("/")[0:2]
-#     return owner, repo
+def mark_duplicates_from_dfs(df: pd.DataFrame, dist_df: pd.DataFrame) -> dict:
+    """
+    returns a dict where the keys are the issue ids and the value is a list of duplicate IDs
 
+    Args:
+        df (pd.DataFrame): the dataframe with the issues
+        dist_df (pd.DataFrame): the distance dataframe, which shows how "far away" issues are from each other
 
-# def mark_issue_as_duplicate(issue):
-#     pass
+    Returns:
+        dict: a dict where the keys are the issue ids and the value is a list of duplicate IDs
+    """
+    duplicates_dict = {}
 
-
-# def get_issues_from_repo():
-#     pass
+    # Find duplicates for each issue
+    for idx, row in df.iterrows():
+        log.info(f"Issue: {row['title']}")
+        log.info(f"Possible duplicates:")
+        duplicates = dist_df.loc[idx].dropna().index
+        duplicates_df = df.loc[duplicates]
+        log.info(duplicates_df)
+        # Add id and corresponding duplicates to the dictionary
+        if len(duplicates_df) > 1:
+            duplicates_dict[row["number"]] = duplicates_df["number"].tolist()
+            duplicates_dict[row["number"]].remove(row["number"])
+        # This will only be a list of duplicates
+        # else:
+        #     duplicates_dict[row["number"]] = []
+    return duplicates_dict
 
 
 if __name__ == "__main__":
-    mark_duplicates_click()
+    dup_hawk_click()

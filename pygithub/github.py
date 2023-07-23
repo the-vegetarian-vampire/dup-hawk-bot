@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 from urllib.parse import urlparse
 
@@ -45,6 +46,21 @@ class Github:
         url = self.url + f"repos/{owner}/{repo}/issues"
         params = {"state": state}
         response = requests.get(url, headers=self.headers, params=params)
+        return response.json()
+
+    def tag_issue(self, issue_number: int, repo_url: str, labels: list[str]) -> dict:
+        owner, repo = self.get_owner_and_repo(repo_url)
+        url = self.url + f"repos/{owner}/{repo}/issues/{issue_number}/labels"
+        data = {"labels": labels}
+        response = requests.post(url, headers=self.headers, data=json.dumps(data))
+        if response.status_code > 399:
+            raise Exception(response.json())
+        return response.json()
+
+    def remove_labels(self, issue_id: int, repo_url: str):
+        owner, repo = self.get_owner_and_repo(repo_url)
+        url = self.url + f"repos/{owner}/{repo}/issues/{issue_id}/labels"
+        response = requests.delete(url, headers=self.headers)
         return response.json()
 
     @staticmethod
