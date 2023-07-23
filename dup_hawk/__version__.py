@@ -1,6 +1,0 @@
-__title__ = "dup_hawk"
-__description__ = "Python CLI for marking duplicates submissions on GitHub."
-__version__ = "0.0.3"
-__author__ = "Cyfrin"
-__license__ = "MIT"
-__copyright__ = "Copyright 2023 Cyfrin"

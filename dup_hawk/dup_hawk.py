@@ -1,5 +1,8 @@
 import logging as log
 import os
+
+# from .__version__ import __title__, __version__
+from importlib.metadata import version
 from typing import List
 
 import click
@@ -13,7 +16,8 @@ from scipy.spatial.distance import cdist
 
 from pygithub import Github
 
-from .__version__ import __title__, __version__
+TITLE = "dup_hawk"
+__version__ = version(__package__)
 
 load_dotenv()
 
@@ -26,7 +30,7 @@ log.basicConfig(level=log.INFO)
 @click.command()
 @click.version_option(
     version=__version__,
-    prog_name=__title__,
+    prog_name=TITLE,
 )
 @click.option(
     "--git-repo-url",
