@@ -13,15 +13,12 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: "3.x"
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
       - name: Install dependencies
-        run: |
-          python3 -m pip install --upgrade build
-          python3 -m pip install --upgrade pip
-          python3 -m pip install --upgrade twine
-      - name: Build and publish
+        run: poetry install
+      - name: Build & publish package
         env:
-          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
-        run: |
-          python3 -m build
-          python3 -m twine upload dist/*
+          PYPY_API_TOKEN: ${{ secrets.PYPY_API_TOKEN }}
+        run: poetry publish --build -u __token__ -p $PYPY_API_TOKEN
