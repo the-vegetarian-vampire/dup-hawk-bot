@@ -1,5 +1,6 @@
 import logging as log
 import os
+import sys
 
 # from .__version__ import __title__, __version__
 from importlib.metadata import version
@@ -10,7 +11,6 @@ import numpy as np
 import openai
 import pandas as pd
 from dotenv import load_dotenv
-from openai import Embedding
 from openai.embeddings_utils import get_embedding
 from scipy.spatial.distance import cdist
 
@@ -35,6 +35,7 @@ log.basicConfig(level=log.INFO)
 @click.option(
     "--git-repo-url",
     default=None,
+    required=True,
     help="GitHub repo URL that you want to mark duplicate issues for.",
 )
 @click.option(
@@ -42,12 +43,17 @@ log.basicConfig(level=log.INFO)
     default=os.getenv("GITHUB_PAT_TOKEN"),
     help="GitHub repo URL that you want to mark duplicate issues for.",
 )
-def dup_hawk_click(git_repo_url: str, git_pat_token: str):
-    dup_hawk(git_repo_url, git_pat_token)
+@click.option(
+    "--openai-api-key",
+    default=os.getenv("OPENAI_API_KEY"),
+    help="OpenAI API key.",
+)
+def dup_hawk_click(git_repo_url: str, git_pat_token: str, openai_api_key: str):
+    dup_hawk(git_repo_url, git_pat_token, openai_api_key)
 
 
-def dup_hawk(git_repo_url: str, git_pat_token: str):
-    openai.key = os.getenv("OPENAI_API_KEY")
+def dup_hawk(git_repo_url: str, git_pat_token: str, openai_api_key: str):
+    openai.key = openai_api_key
     g: Github = Github(git_pat_token)
     log.info(f"Getting issues from {git_repo_url}")
     repo_issues: List[dict] = g.get_issues(git_repo_url, state="open")
@@ -125,4 +131,7 @@ def mark_duplicates_from_dfs(df: pd.DataFrame, dist_df: pd.DataFrame) -> dict:
 
 
 if __name__ == "__main__":
-    dup_hawk_click()
+    if len(sys.argv) == 1:
+        dup_hawk_click.main["--help"]
+    else:
+        dup_hawk_click()
