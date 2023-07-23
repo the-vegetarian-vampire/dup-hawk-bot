@@ -21,6 +21,8 @@
   - You may have to close and re-open your terminal
   - You'll know you've installed it right if you can run:
     - `pipx --version` and see something like `x.x.x.x`
+- [poetry](https://python-poetry.org/docs/)
+  - You'll know you've installed it right if you can run `poetry --version` and get an output like `Poetry (version 1.4.2)`
 
 ## Installation
 
