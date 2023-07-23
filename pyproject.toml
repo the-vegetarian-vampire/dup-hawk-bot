@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dup-hawk"
-version = "0.0.6"
+version = "0.0.7"
 description = "Python CLI for marking duplicates submissions on GitHub."
 authors = ["PatrickAlphac <54278053+PatrickAlphaC@users.noreply.github.com>"]
 readme = "README.md"
