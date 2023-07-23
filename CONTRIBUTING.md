@@ -30,7 +30,9 @@ _For maintainers only. You can view the [docs](https://packaging.python.org/en/l
 _Note: `setup.py sdist` is deprecated. Use `python3 -m build` instead._
 
 ```
-poetry publish --build
+poetry publish --build -u __token__ -p $PYPI_API_TOKEN
 ```
+
+*If you don't have an API key, make one, and give it access to your whole project, then delete it and make a new restricted one.*
 
 Right now, we have our GitHub actions setup so that every release we push we automatically upload to PyPI.
