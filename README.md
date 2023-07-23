@@ -2,6 +2,12 @@
 
 🦅 A bot the looks for duplicate issues on a GitHub repo, created especially for competitive security reviews. 
 
+<!-- use html to import an image -->
+<p align="center">
+  <img src="./img/dups.png" alt="dup-hawk" width="500"/>
+</p>
+
+
 # Getting Started
 ## Requirements
 
@@ -37,11 +43,14 @@ pip install . -e
 ```
 dup-hawk --help
 ```
-will output:
+
+To run the duplicate checker, run:
 
 ```
-
+dup-hawk --git-repo-url {URL} --git-pat-token {PAT_TOKEN}
 ```
+
+And you will have marked the issues on your github repo!
 
 # Tests
 
