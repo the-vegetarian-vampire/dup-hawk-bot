@@ -1,25 +1,42 @@
-# How it could look:
+# dup_hawk
 
-## GitHub app
+🦅 A bot the looks for duplicate issues on a GitHub repo, created especially for competitive security reviews. 
 
-<!-- You need two things:
-1. Webhook server (to listen for GitHub issues)
-2. GitHub app server (to run the duplication stuff)
-    -->
+# Getting Started
+## Requirements
 
-## Setup
-1. User installs the app 
-2. They run this script 
+- [git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+  - You'll know you did it right if you can run `git --version` and you see a response like `git version x.x.x`
+- [Python](https://www.python.org/downloads/)
+  - You'll know you've installed python right if you can run:
+    - `python --version` or `python3 --version` and get an output like: `Python x.x.x`
+- [pipx](https://pypa.github.io/pipx/installation/)
+  - `pipx` is different from [pip](https://pypi.org/project/pip/)
+  - You may have to close and re-open your terminal
+  - You'll know you've installed it right if you can run:
+    - `pipx --version` and see something like `x.x.x.x`
 
-# PyGithub
+## Installation
 
-We rebuilt the [GitHub API](https://docs.github.com/en/rest) because the [PyGithub](https://github.com/PyGithub/PyGithub) seems to be out of date beyond repair. There is a chance I just jumped the gun, but personally it was very frustrating to use. 
+### pipx
 
-## Tasks
+```
+pipx install dup_hawk
+```
 
-1. Build an API that can take in a GitHub URL and get it's issues
-2. Have the bot upload issues to OpenAI looking for duplicates
-3. Have it mark those issues on GitHub as duplicates
+### From Source
+
+```
+git clone https://github.com/Cyfrin/dup-hawk
+cd dup-hawk
+pip install . -e
+```
+
+## Quickstart 
+
+```
+
+```
 
 # Tests
 
