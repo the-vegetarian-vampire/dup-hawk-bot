@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from pygithub import Github
+from dup_hawk import Github
 
 # Define the path to the current file
 current_file_path = Path(__file__)

@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from pygithub import Github
+from dup_hawk import Github
 
 TEST_REPO = "https://github.com/smartcontractkit/chainlink"
 PRIVATE_REPO = "https://github.com/PatrickAlphaC/actions-app-test"

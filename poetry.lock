@@ -1146,18 +1146,6 @@ files = [
     {file = "pycparser-2.21.tar.gz", hash = "sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"},
 ]
 
-[[package]]
-name = "pygithub"
-version = "1.59.0"
-description = "Use the full Github API v3"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "PyGithub-1.59.0-py3-none-any.whl", hash = "sha256:126bdbae72087d8d038b113aab6b059b4553cb59348e3024bb1a1cae406ace9e"},
-    {file = "PyGithub-1.59.0.tar.gz", hash = "sha256:6e05ff49bac3caa7d1d6177a10c6e55a3e20c85b92424cc198571fd0cf786690"},
-]
-
 [package.dependencies]
 deprecated = "*"
 pyjwt = {version = ">=2.4.0", extras = ["crypto"]}

@@ -14,7 +14,7 @@ from openai import Embedding
 from openai.embeddings_utils import get_embedding
 from scipy.spatial.distance import cdist
 
-from pygithub import Github
+from dup_hawk.github import Github
 
 TITLE = "dup_hawk"
 __version__ = version(__package__)
