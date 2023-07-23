@@ -41,12 +41,12 @@ log.basicConfig(level=log.INFO)
 @click.option(
     "--git-pat-token",
     default=os.getenv("GITHUB_PAT_TOKEN"),
-    help="GitHub repo URL that you want to mark duplicate issues for.",
+    help="GitHub PAT token of the github user that will be marking the issues.",
 )
 @click.option(
     "--openai-api-key",
     default=os.getenv("OPENAI_API_KEY"),
-    help="OpenAI API key.",
+    help="OpenAI API key for generating embeddings.",
 )
 def dup_hawk_click(git_repo_url: str, git_pat_token: str, openai_api_key: str):
     dup_hawk(git_repo_url, git_pat_token, openai_api_key)

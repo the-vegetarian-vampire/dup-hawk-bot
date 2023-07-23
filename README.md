@@ -35,6 +35,11 @@ pip install . -e
 ## Quickstart 
 
 ```
+dup-hawk --help
+```
+will output:
+
+```
 
 ```
 
