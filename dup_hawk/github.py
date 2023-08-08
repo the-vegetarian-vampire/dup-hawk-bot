@@ -53,6 +53,8 @@ class Github:
         while True:
             params = {"state": state, "per_page": PER_PAGE, "page": page_index}
             log.info(f"Getting page {page_index} of issues for {repo_url}")
+            log.debug(f"Params: {params}")
+            log.debug(f"URL: {url}")
             response = requests.get(url, headers=self.headers, params=params)
             if len(response.json()) == 0:
                 break
