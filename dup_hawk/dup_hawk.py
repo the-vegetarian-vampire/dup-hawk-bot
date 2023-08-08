@@ -82,7 +82,7 @@ def dup_hawk(
     if debug:
         log.basicConfig(level=log.DEBUG)
     openai.key = openai_api_key
-    g: Github = Github(git_pat_token)
+    g: Github = Github(git_pat_token, debug=debug)
     log.info(f"Getting issues from {git_repo_url}")
     repo_issues: List[dict] = g.get_issues(git_repo_url, state="open")
     log.info(f"Found {len(repo_issues)} issues, converting to embeddings")

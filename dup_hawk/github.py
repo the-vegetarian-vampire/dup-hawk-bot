@@ -18,11 +18,13 @@ PER_PAGE = 100
 
 
 class Github:
-    def __init__(self, token: str):
+    def __init__(self, token: str, debug: bool = False):
         self.token = token
         self.headers = HEADERS
         self.headers["Authorization"] = f"token {self.token}"
         self.url = BASE_URL
+        if debug:
+            log.basicConfig(level=log.DEBUG)
 
     def get_user(self) -> dict:
         url = self.url + "user"
