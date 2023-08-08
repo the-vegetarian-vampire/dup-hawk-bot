@@ -4,8 +4,9 @@ import pytest
 
 from dup_hawk import Github
 
-TEST_REPO = "https://github.com/smartcontractkit/chainlink"
+TEST_REPO = "https://github.com/Cyfrin/foundry-defi-stablecoin-f23"
 PRIVATE_REPO = "https://github.com/PatrickAlphaC/actions-app-test"
+BIG_REPO = "https://github.com/Cyfrin/2023-07-foundry-defi-stablecoin"
 
 
 @pytest.mark.integration
@@ -26,6 +27,14 @@ def test_get_repo(pat_token):
 def test_get_issues(pat_token):
     g = Github(pat_token)
     issues = g.get_issues(TEST_REPO)
+    assert isinstance(issues, list)
+
+
+@pytest.mark.integration
+def test_get_many_issues(pat_token):
+    g = Github(pat_token)
+    issues = g.get_issues(BIG_REPO)
+    assert len(issues) > 1000
     assert isinstance(issues, list)
 
 

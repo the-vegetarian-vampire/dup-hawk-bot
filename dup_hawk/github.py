@@ -1,8 +1,11 @@
 import json
-from typing import Optional
+import logging as log
+from typing import List, Optional
 from urllib.parse import urlparse
 
 import requests
+
+log.basicConfig(level=log.INFO)
 
 BASE_URL = "https://api.github.com/"
 X_GITHUB_API_VERSION = "2022-11-28"
@@ -11,6 +14,7 @@ HEADERS = {
     "Authorization": "token ",
     "X-GitHub-Api-Version": X_GITHUB_API_VERSION,
 }
+PER_PAGE = 100
 
 
 class Github:
@@ -31,7 +35,7 @@ class Github:
         response = requests.get(url, headers=self.headers)
         return response.json()
 
-    def get_issues(self, repo_url: str, state: Optional[str] = "open") -> dict:
+    def get_issues(self, repo_url: str, state: Optional[str] = "open") -> List[dict]:
         """
         Gets a list of issues for a given repo.
 
@@ -44,9 +48,17 @@ class Github:
         """
         owner, repo = self.get_owner_and_repo(repo_url)
         url = self.url + f"repos/{owner}/{repo}/issues"
-        params = {"state": state}
-        response = requests.get(url, headers=self.headers, params=params)
-        return response.json()
+        page_index = 1
+        results = []
+        while True:
+            params = {"state": state, "per_page": PER_PAGE, "page": page_index}
+            log.info(f"Getting page {page_index} of issues for {repo_url}")
+            response = requests.get(url, headers=self.headers, params=params)
+            if len(response.json()) == 0:
+                break
+            results.extend(response.json())
+            page_index += 1
+        return results
 
     def tag_issue(self, issue_number: int, repo_url: str, labels: list[str]) -> dict:
         owner, repo = self.get_owner_and_repo(repo_url)
