@@ -57,13 +57,19 @@ log.basicConfig(level=log.INFO)
     default=SIMILARITY_THRESHOLD_DEFAULT,
     help="The threshold for how similar issues need to be to be marked as duplicates.",
 )
+@click.option(
+    "--debug/--no-debug",
+    default=False,
+    help="Turn on debug logging.",
+)
 def dup_hawk_click(
     git_repo_url: str,
     git_pat_token: str,
     openai_api_key: str,
     similarity_threshold: float,
+    debug: bool,
 ):
-    dup_hawk(git_repo_url, git_pat_token, openai_api_key, similarity_threshold)
+    dup_hawk(git_repo_url, git_pat_token, openai_api_key, similarity_threshold, debug)
 
 
 def dup_hawk(
@@ -71,7 +77,10 @@ def dup_hawk(
     git_pat_token: str,
     openai_api_key: str,
     similarity_threshold: float,
+    debug: bool = False,
 ):
+    if debug:
+        log.basicConfig(level=log.DEBUG)
     openai.key = openai_api_key
     g: Github = Github(git_pat_token)
     log.info(f"Getting issues from {git_repo_url}")

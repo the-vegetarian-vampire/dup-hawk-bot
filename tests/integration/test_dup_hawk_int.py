@@ -9,7 +9,7 @@ PAT_TOKEN = os.getenv("GITHUB_PAT_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GIT_REPO_URL = "https://github.com/PatrickAlphaC/actions-app-test"
 GIT_REPO_URL_TWO = "https://github.com/Cyfrin/2023-07-foundry-defi-stablecoin"
-SIMILARITY_THRESHOLD_DEFAULT = 0.85
+SIMILARITY_THRESHOLD_DEFAULT = 0.95
 
 
 @pytest.mark.integration
