@@ -24,11 +24,26 @@ load_dotenv()
 EMBEDDING_MODEL = "text-embedding-ada-002"
 SIMILARITY_THRESHOLD_DEFAULT = 0.85
 
-# We aren't exactly figuring out how many tokens each issue has, but instead sort of "dumb"
-# Checking that their are less than 1,000 words in an issue.
+# We aren't figuring out how many tokens each issue has, but instead sort of "dumb"
+# Checking their are less than 1,000 words in an issue.
 PSEUDO_TOKEN_LIMIT = 1000
 
 log.basicConfig(level=log.INFO)
+
+# Create a list of issues to be sorted into the following buckets:
+embedding_issues = ["low", "medium", "high", "gas", "informational"]
+
+
+def classify_issues_by_keywords(issues: List[dict], keywords: List[str]) -> dict:
+    classified_issues = {keyword: [] for keyword in keywords}
+    for issue in issues:
+        title = issue.get("title", "").lower()
+        body = issue.get("body", "").lower()
+        for keyword in keywords:
+            if keyword in title or keyword in body:
+                classified_issues[keyword].append(issue)
+                break  # Exit the loop once a match is found
+    return classified_issues
 
 
 @click.command()
@@ -40,7 +55,7 @@ log.basicConfig(level=log.INFO)
     "--git-repo-url",
     default=None,
     required=True,
-    help="GitHub repo URL that you want to mark duplicate issues for.",
+    help="GitHub repo URL you want to mark duplicate issues for.",
 )
 @click.option(
     "--git-pat-token",
@@ -69,8 +84,13 @@ def dup_hawk_click(
     similarity_threshold: float,
     debug: bool,
 ):
-    dup_hawk(git_repo_url, git_pat_token, openai_api_key, similarity_threshold, debug)
+    dup_hawk(git_repo_url, git_pat_token,
+             openai_api_key, similarity_threshold, debug)
 
+
+# Should iterate through the issues and create a list of issues to be sorted into the following
+# buckets: embedding_issues = ["low", "medium", "high", "gas", "informational"]
+# We can use islower() method
 
 def dup_hawk(
     git_repo_url: str,
@@ -85,6 +105,13 @@ def dup_hawk(
     g: Github = Github(git_pat_token, debug=debug)
     log.info(f"Getting issues from {git_repo_url}")
     repo_issues: List[dict] = g.get_issues(git_repo_url, state="open")
+
+ # Classify the issues based on embedding_issues
+    classified_issues = classify_issues_by_keywords(
+        repo_issues, embedding_issues)
+    for keyword, issues in classified_issues.items():
+        log.info(f"Found {len(issues)} issues classified under '{keyword}'")
+
     log.info(f"Found {len(repo_issues)} issues, converting to embeddings")
     df, dist_df = create_embeddings_and_dfs(repo_issues, similarity_threshold)
     log.info(f"Finding duplicates")
@@ -96,7 +123,8 @@ def dup_hawk(
                 f"Tagging {duplicate_number} as a duplicate of {github_issue_number}"
             )
             g.tag_issue(
-                github_issue_number, git_repo_url, [f"ai-dup-{duplicate_number}"]
+                github_issue_number, git_repo_url, [
+                    f"ai-dup-{duplicate_number}"]
             )
     log.info(f"Done!")
 
@@ -130,10 +158,12 @@ def create_embeddings_and_dfs(
 
     # Get embeddings for each issue
     log.info("Creating embeddings, please wait...")
-    df["embeddings"] = df["text"].apply(lambda x: get_embedding(x, EMBEDDING_MODEL))
+    df["embeddings"] = df["text"].apply(
+        lambda x: get_embedding(x, EMBEDDING_MODEL))
 
     log.info("Creating distance matrix...")
-    distances = cdist(list(df["embeddings"]), list(df["embeddings"]), metric="cosine")
+    distances = cdist(list(df["embeddings"]), list(
+        df["embeddings"]), metric="cosine")
     distances[distances > 1 - similarity_threshold] = np.nan
     dist_df = pd.DataFrame(distances)
     dist_df.index = df.index
