@@ -68,7 +68,8 @@ class Github:
         owner, repo = self.get_owner_and_repo(repo_url)
         url = self.url + f"repos/{owner}/{repo}/issues/{issue_number}/labels"
         data = {"labels": labels}
-        response = requests.post(url, headers=self.headers, data=json.dumps(data))
+        response = requests.post(
+            url, headers=self.headers, data=json.dumps(data))
         if response.status_code > 399:
             raise Exception(response.json())
         return response.json()
