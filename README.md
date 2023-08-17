@@ -37,7 +37,7 @@ pipx install dup_hawk
 ```
 git clone https://github.com/Cyfrin/dup-hawk
 cd dup-hawk
-pip install . -e
+pip install -e .
 ```
 
 ## Quickstart 
