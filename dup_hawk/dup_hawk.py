@@ -33,6 +33,8 @@ log.basicConfig(level=log.INFO)
 # Create a list of issues to be sorted into the following buckets:
 embedding_issues = ["low", "medium", "high", "gas", "informational"]
 
+# Not sure if this is necessary, but this is my idea to organize classification:
+
 
 def classify_issues_by_keywords(issues: List[dict], keywords: List[str]) -> dict:
     classified_issues = {keyword: [] for keyword in keywords}
@@ -88,10 +90,6 @@ def dup_hawk_click(
              openai_api_key, similarity_threshold, debug)
 
 
-# Should iterate through the issues and create a list of issues to be sorted into the following
-# buckets: embedding_issues = ["low", "medium", "high", "gas", "informational"]
-# We can use islower() method
-
 def dup_hawk(
     git_repo_url: str,
     git_pat_token: str,
@@ -106,7 +104,9 @@ def dup_hawk(
     log.info(f"Getting issues from {git_repo_url}")
     repo_issues: List[dict] = g.get_issues(git_repo_url, state="open")
 
- # Classify the issues based on embedding_issues
+# Iterate through the issues and create a list of issues to be sorted into the following
+# buckets: embedding_issues = ["low", "medium", "high", "gas", "informational"]
+# We can use islower() method
     classified_issues = classify_issues_by_keywords(
         repo_issues, embedding_issues)
     for keyword, issues in classified_issues.items():

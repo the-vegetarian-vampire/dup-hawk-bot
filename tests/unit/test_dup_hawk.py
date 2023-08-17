@@ -5,7 +5,7 @@ from dup_hawk import mark_duplicates_from_dfs
 
 #  TO RUN: pytest test_dup_hawk.py
 
-# Sample data as pytest fixtures
+# Sample data as pytest fixstures
 
 
 @pytest.fixture
